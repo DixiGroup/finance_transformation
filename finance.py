@@ -6,6 +6,8 @@ import sheet2
 import sheet3
 import sheet4
 import sheet5
+import sheet6
+import sheet7
 
 files = os.listdir(common.INPUT_FOLDER)
 files = [f for f in files if f.endswith(".xls")]
@@ -20,4 +22,6 @@ for f in files:
     sheet3.main()
     sheet4.main()
     sheet5.main()
+    sheet6.main()
+    sheet7.main()
 

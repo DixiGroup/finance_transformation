@@ -10,10 +10,21 @@ def load_workbook(wb):
     global sheet_dict
     sheet = wb.sheet_by_index(SHEET_NUMBER)
     nrows = sheet.nrows
+    lessor = ''
     for i in range(STARTING_ROW, nrows):
-        if (not (common.is_blank(sheet.cell(i, 0)))) and (int(float(sheet.cell(i, 0).value)) !=  float(sheet.cell(i, 0).value)):
-            for k in fields_dictionary.keys():
-                sheet_dict[fields_dictionary[k]].append(remove_x(sheet.cell(i, int(k) - 1).value))
+        if not (common.is_blank(sheet.cell(i, 0))):
+            if int(float(sheet.cell(i, 0).value)) !=  float(sheet.cell(i, 0).value):
+                for k in fields_dictionary.keys():
+                    sheet_dict[fields_dictionary[k]].append(remove_x(sheet.cell(i, int(k) - 1).value))
+                sheet_dict["lessor"].append(lessor)
+            else:
+                lessor = get_lessor(sheet.cell(i, 1).value)
+
+def get_lessor(s):
+    if "державного майна" in s:
+        return "ФДМУ"
+    elif "органом управління" in s:
+        return "Орган управління чи суб'єкт господарювання"
 
 
 def format_code(v):
@@ -71,6 +82,7 @@ def main():
         input_file = cff.read()
     wb = xlrd.open_workbook(input_file, formatting_info = True)
     sheet_dict["company_type"] = []
+    sheet_dict["lessor"] = []
     load_workbook(wb)
     sheet_dict["company_code"] = list(map(format_code, sheet_dict["company_code"]))
     with open(DATE_FILE, "r") as df:
@@ -82,7 +94,12 @@ def main():
         sheet_dict["year"] = [int(date_[-4:])] * len(sheet_dict["company_code"])
     sheet_dict["period"] = [QUARTERS_DICT[date_[3:5]]] * len(sheet_dict["company_code"])
     sheet_dict = common.add_company_status(sheet_dict)
-    headers = ['year', 'period'] + headers[:2] + ["company_status"] + headers[2:]
+    sheet_dict['branch'] = list(map(common.extract_branch, sheet_dict['company_name']))
+    sheet_dict['company_name'] = [sheet_dict['company_name'][i].replace(sheet_dict['branch'][i],"").strip() for i in range(len(sheet_dict['company_name'])) if sheet_dict['branch'] != '' ]
+    for i in range(len(sheet_dict['branch'])):
+        if sheet_dict['branch'][i] != '':
+                sheet_dict['branch'][i] = sheet_dict['branch'][i][1:-1] 
+    headers = ['year', 'period'] + headers[:2] + ["company_status", "branch", "lessor"] + headers[2:]
     finance_list = dict_to_list(sheet_dict, headers)
     with open(OUTPUT_FILE + common.filename_part(date_datetime) + ".csv", "w") as of:
         csvwriter = csv.writer(of)
@@ -101,7 +118,7 @@ def main():
         worksheet.write(0, i, headers[i], headerf)
     for i in range(len(finance_list)):
         for j in range(len(headers)):
-            if j >  5:
+            if j >  7:
                 worksheet.write(i+1, j, finance_list[i][j], numf)
             else:
                 worksheet.write(i+1, j, finance_list[i][j])

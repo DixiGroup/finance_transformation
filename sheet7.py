@@ -92,7 +92,12 @@ def main():
         sheet_dict["year"] = [int(date_[-4:])] * len(sheet_dict["company_code"])
     sheet_dict["period"] = [QUARTERS_DICT[date_[3:5]]] * len(sheet_dict["company_code"])
     sheet_dict = common.add_company_status(sheet_dict)
-    headers = ['year', 'period'] + headers[:2] + ["company_type", "company_status"] + headers[2:]
+    sheet_dict['branch'] = list(map(common.extract_branch, sheet_dict['company_name']))
+    sheet_dict['company_name'] = [sheet_dict['company_name'][i].replace(sheet_dict['branch'][i],"").strip()for i in range(len(sheet_dict['company_name'])) if sheet_dict['branch'] != '' ]
+    for i in range(len(sheet_dict['branch'])):
+        if sheet_dict['branch'][i] != '':
+                sheet_dict['branch'][i] = sheet_dict['branch'][i][1:-1] 
+    headers = ['year', 'period'] + headers[:2] + ["company_type", "company_status", "branch"] + headers[2:]
     finance_list = dict_to_list(sheet_dict, headers)
     with open(OUTPUT_FILE + common.filename_part(date_datetime) + ".csv", "w") as of:
         csvwriter = csv.writer(of)

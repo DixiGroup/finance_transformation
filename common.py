@@ -8,6 +8,7 @@ INPUT_FOLDER = "finance_old"
 COMPANY_STATUSES_FILE = "company_statuses.json"
 NOT_SPACE = re.compile("\S+")
 CURRENT_FILENAME = "filename.txt"
+BRANCH_RE = re.compile("(\(((ВП).*|(філія).*?\)))")
 
 def add_company_status(sheet_dict):
     with open(COMPANY_STATUSES_FILE, "r") as csf:
@@ -30,6 +31,8 @@ def refine_company_type(s):
     elif "господарськ" in s:
         if "понад" in s and "50" in s:
             s = "ГТ(б50)"
+        elif "менше" in s and "50" in s:
+            s = "ГТ(м50)"
     return s
 
 def is_blank(cell):
@@ -44,3 +47,10 @@ def filename_part(d):
         year = "_y" + str(year)
     month = datetime.strftime(d, '%m')
     return year + "_" + QUARTERS_DICT[month] + "m"
+
+def extract_branch(s):
+    branch_matched = BRANCH_RE.search(s)
+    if branch_matched:
+        return branch_matched.group(0)
+    else:
+        return ""
