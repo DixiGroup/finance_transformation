@@ -80,7 +80,7 @@ def main():
     headers = ["year", "period"] + headers[:2] + ["company_type", "company_status"] + headers[2:]
     sheet_dict["company_code"] = list(map(format_code, sheet_dict["company_code"]))
     finance_list = dict_to_list(sheet_dict, headers)
-    with open(OUTPUT_FILE + common.filename_part(date_datetime) + ".csv", "w") as of:
+    with open(OUTPUT_FILE + common.filename_part(date_datetime) + ".csv", "w", newline="") as of:
         csvwriter = csv.writer(of)
         csvwriter.writerow(headers)
         for l in finance_list:

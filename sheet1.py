@@ -123,7 +123,7 @@ def main():
         sheet_dict["year"] = [int(date_[-4:])] * len(sheet_dict["company_code"])
     sheet_dict["period"] = [QUARTERS_DICT[date_[3:5]]] * len(sheet_dict["company_code"])
     finance_list = dict_to_list(sheet_dict, HEADERS)
-    with open(OUTPUT_FILE + common.filename_part(date_datetime) + ".csv", "w") as of:
+    with open(OUTPUT_FILE + common.filename_part(date_datetime) + ".csv", "w", newline="") as of:
         csvwriter = csv.writer(of)
         csvwriter.writerow(HEADERS)
         for l in finance_list:

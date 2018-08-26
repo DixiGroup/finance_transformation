@@ -101,7 +101,7 @@ def main():
                 sheet_dict['branch'][i] = sheet_dict['branch'][i][1:-1] 
     headers = ['year', 'period'] + headers[:2] + ["company_status", "branch", "lessor"] + headers[2:]
     finance_list = dict_to_list(sheet_dict, headers)
-    with open(OUTPUT_FILE + common.filename_part(date_datetime) + ".csv", "w") as of:
+    with open(OUTPUT_FILE + common.filename_part(date_datetime) + ".csv", "w", newline="") as of:
         csvwriter = csv.writer(of)
         csvwriter.writerow(headers)
         for l in finance_list:
